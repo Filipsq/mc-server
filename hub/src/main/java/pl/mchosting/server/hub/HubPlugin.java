@@ -1,9 +1,13 @@
 package pl.mchosting.server.hub;
 
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import pl.mchosting.server.api.ProfileService;
 
 public final class HubPlugin extends JavaPlugin {
+
+    private static final long SIDEBAR_REFRESH_TICKS = 20L;
 
     @Override
     public void onEnable() {
@@ -11,7 +15,27 @@ public final class HubPlugin extends JavaPlugin {
         if (profiles == null) {
             throw new IllegalStateException("MchostingCore did not register ProfileService");
         }
-        getServer().getPluginManager().registerEvents(new HubProtectionListener(), this);
-        getServer().getPluginManager().registerEvents(new HubJoinListener(), this);
+        saveDefaultConfig();
+
+        HubSettings settings = new HubSettings(this);
+        HubItems items = new HubItems(this);
+        HubSidebar sidebar = new HubSidebar(getServer(), profiles);
+        PlayerVisibility visibility = new PlayerVisibility(this, items);
+        ModeMenu modeMenu = new ModeMenu(settings);
+        ProfileMenu profileMenu = new ProfileMenu(profiles);
+
+        PluginManager plugins = getServer().getPluginManager();
+        plugins.registerEvents(new HubProtectionListener(settings), this);
+        plugins.registerEvents(new HubJoinListener(profiles, settings, items, sidebar, visibility), this);
+        plugins.registerEvents(new HubItemListener(items, modeMenu, profileMenu, visibility), this);
+        plugins.registerEvents(new MenuListener(), this);
+
+        getServer().getScheduler().runTaskTimer(this, sidebar::updateAll, SIDEBAR_REFRESH_TICKS, SIDEBAR_REFRESH_TICKS);
+
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            event.registrar().register(HubCommands.spawn(settings), "Wraca na spawn huba");
+            event.registrar().register(HubCommands.dailyReward(profiles), "Odbiera codzienną nagrodę");
+            event.registrar().register(HubCommands.admin(settings), "Ustawienia huba (dla obsługi)");
+        });
     }
 }

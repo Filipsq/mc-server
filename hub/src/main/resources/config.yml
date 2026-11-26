@@ -1,0 +1,12 @@
+# Ustawienia huba mchosting.pl.
+
+# Punkty w dolinie (spawn, minigry, tryby, aleja, amfiteatr).
+# Nie wpisuj ich ręcznie: stań w miejscu i wpisz w grze /hubadmin ustaw <punkt>.
+# Dopóki spawn nie jest ustawiony, gracze pojawiają się na spawnie świata.
+points: {}
+
+# Spadnięcie poniżej tej wysokości wraca gracza na spawn.
+void-y: 60
+
+# Czy wejście do wody też wraca na spawn (w dolinie są jeziora, więc domyślnie nie).
+water-returns-to-spawn: false

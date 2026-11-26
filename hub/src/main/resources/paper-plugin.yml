@@ -10,3 +10,10 @@ dependencies:
       load: BEFORE
       required: true
       join-classpath: true
+permissions:
+  mchosting.hub.build:
+    description: Budowanie i przesuwanie przedmiotów w hubie
+    default: op
+  mchosting.hub.admin:
+    description: Ustawianie punktów w dolinie (/hubadmin)
+    default: op

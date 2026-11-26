@@ -40,4 +40,21 @@ class LevelCurveTest {
     void rejectsNegativeXp() {
         assertThrows(IllegalArgumentException.class, () -> LevelCurve.levelFor(-1));
     }
+
+    @Test
+    void progressInsideLevel() {
+        LevelProgress progress = LevelCurve.progress(350);
+        assertEquals(3, progress.level());
+        assertEquals(50, progress.xpIntoLevel());
+        assertEquals(300, progress.xpForLevel());
+        assertEquals(250, progress.xpToNext());
+    }
+
+    @Test
+    void progressAtMaxLevel() {
+        LevelProgress progress = LevelCurve.progress(LevelCurve.totalXpFor(LevelCurve.MAX_LEVEL));
+        assertEquals(LevelCurve.MAX_LEVEL, progress.level());
+        assertEquals(0, progress.xpToNext());
+        assertEquals(1.0, progress.fraction());
+    }
 }
