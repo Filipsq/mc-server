@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     compileOnly(project(":core-api"))
+    testImplementation(project(":core-api"))
 }
 
 tasks.runServer {
