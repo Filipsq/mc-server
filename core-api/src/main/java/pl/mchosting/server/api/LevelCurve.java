@@ -38,4 +38,14 @@ public final class LevelCurve {
         }
         return level;
     }
+
+    /** Level and progress inside it for {@code totalXp}. */
+    public static LevelProgress progress(long totalXp) {
+        int level = levelFor(totalXp);
+        long into = totalXp - totalXpFor(level);
+        if (level == MAX_LEVEL) {
+            return new LevelProgress(level, into, 0);
+        }
+        return new LevelProgress(level, into, xpToNext(level));
+    }
 }
