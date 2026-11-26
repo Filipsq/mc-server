@@ -1,0 +1,6 @@
+name: MchostingCore
+version: '${version}'
+main: pl.mchosting.server.core.CorePlugin
+api-version: '26.3'
+description: Konto gracza wspólne dla całej sieci mchosting.pl
+authors: [mchosting.pl]

@@ -1,0 +1,12 @@
+name: MchostingHub
+version: '${version}'
+main: pl.mchosting.server.hub.HubPlugin
+api-version: '26.3'
+description: Hub sieci mchosting.pl
+authors: [mchosting.pl]
+dependencies:
+  server:
+    MchostingCore:
+      load: BEFORE
+      required: true
+      join-classpath: true
