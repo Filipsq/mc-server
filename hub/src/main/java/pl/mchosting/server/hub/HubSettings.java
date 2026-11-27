@@ -3,10 +3,14 @@ package pl.mchosting.server.hub;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -14,11 +18,43 @@ import org.bukkit.plugin.java.JavaPlugin;
 final class HubSettings {
 
     private static final String POINTS = "points.";
+    private static final String GATES = "gates";
 
     private final JavaPlugin plugin;
+    /** Gates by game id, read once because they are checked on every step. */
+    private final Map<String, GateRegion> gates = new HashMap<>();
 
     HubSettings(JavaPlugin plugin) {
         this.plugin = plugin;
+        ConfigurationSection section = config().getConfigurationSection(GATES);
+        if (section != null) {
+            for (String gameId : section.getKeys(false)) {
+                try {
+                    gates.put(gameId, GateRegion.decode(section.getString(gameId, "")));
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Skipping broken gate " + gameId + ": " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    /**
+     * True in the hub world (the world of the spawn). Hub rules only apply there, so minigame
+     * arenas in other worlds on the same server work normally.
+     */
+    boolean isHubWorld(World world) {
+        return world.equals(spawn().getWorld());
+    }
+
+    /** Minigame gates by game id. */
+    Map<String, GateRegion> gates() {
+        return Map.copyOf(gates);
+    }
+
+    void setGate(String gameId, GateRegion gate) {
+        gates.put(gameId, gate);
+        config().set(GATES + "." + gameId, gate.encode());
+        save();
     }
 
     /** Spawn point, or the world spawn until staff set one. */
@@ -49,6 +85,10 @@ final class HubSettings {
     /** Stores a point and writes config.yml in the background. */
     void setPoint(HubPoint point, Location location) {
         config().set(POINTS + point.id(), location.clone());
+        save();
+    }
+
+    private void save() {
         String yaml = config().saveToString();
         Path file = plugin.getDataPath().resolve("config.yml");
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {

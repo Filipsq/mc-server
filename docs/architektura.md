@@ -63,11 +63,22 @@ Docelowo:
 - MariaDB zamiast plików (`ProfileStore` ma już ten kształt): profile, kosmetyki, statystyki, kary. Migracje schematu w repo, dostęp przez pulę połączeń, zawsze poza głównym wątkiem.
 - Redis: szybka wymiana między serwerami (kto jest online gdzie, party, wiadomości między trybami).
 
+## Minigry
+
+Plugin `MchostingMinigry` (moduł `minigry`). Na start działa na tym samym serwerze co hub, a areny są w osobnym świecie (np. `minigry`). Zasady huba (brak obrażeń, ochrona bloków) obowiązują tylko w świecie huba, więc w arenach działają zasady gry.
+
+- Hub rozmawia z minigrami tylko przez `MinigameService` z `core-api` (dołącz do kolejki, wyjdź, ilu czeka i gra). Minigry odsyłają graczy do huba przez `LobbyService`, które rejestruje hub. Gdy minigry przeniosą się na osobny serwer, wystarczy nowa implementacja tych dwóch interfejsów (kolejka przez Redis i przeniesienie gracza), bez zmian w grach.
+- Kolejka: wejście w bramę albo kliknięcie w kompasie. Gracz dalej chodzi po hubie, na pasku nad ekwipunkiem widzi stan kolejki.
+- Dobieranie (`Matchmaker`, `SkillRating`): ocena gracza 0–1000 liczona z dwóch liczników na koncie (`games` i `skill_points`, czyli jaką część przeciwników pokonał w każdym meczu). Nowi gracze (mniej niż 10 meczów w danej grze) grają z nowymi, dopóki nie poczekają 45 s. Dopuszczalna różnica ocen rośnie z czasem czekania, po minucie każdy gra z każdym.
+- Mecz (`Match`): 10 s odliczania na arenie, potem gra do ostatniego gracza; po 5 minutach remis bez zwycięzcy. Odpadnięci oglądają mecz jako widzowie albo wracają przez `/opusc`. Kto wyjdzie z serwera w trakcie, przegrywa i nie dostaje nagrody.
+- Nagrody i statystyki przez `ProfileService` (`MatchRewards`, `Stats`), te same zasady w każdej minidze.
+- Areny w `plugins/MchostingMinigry/arenas.yml`, ustawiane komendą `/minigryadmin`. Po meczu zmienione bloki wracają na miejsce.
+
 ## Kolejne moduły (plan)
 
 | Moduł | Etap |
 |---|---|
 | `link` + `link-protocol` (mchosting-link na serwerach klientów, Paper 1.20.6+): gotowe | 1 |
-| `minigry` | 1 |
+| `minigry`: Parkour i Duels | 1 |
 | `boxpvp`, `przedmioty`, `party` | 2 |
 | `lifesteal` | 3 |

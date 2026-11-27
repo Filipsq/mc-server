@@ -1,0 +1,19 @@
+name: MchostingMinigry
+version: '${version}'
+main: pl.mchosting.server.minigry.MinigryPlugin
+api-version: '26.3'
+description: Minigry sieci mchosting.pl (Spleef, TNT Run)
+authors: [mchosting.pl]
+dependencies:
+  server:
+    MchostingCore:
+      load: BEFORE
+      required: true
+      join-classpath: true
+    MchostingHub:
+      load: BEFORE
+      required: false
+permissions:
+  mchosting.minigry.admin:
+    description: Ustawianie aren (/minigryadmin) i budowanie w światach aren
+    default: op

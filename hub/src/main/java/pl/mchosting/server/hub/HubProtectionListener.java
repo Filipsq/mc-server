@@ -1,6 +1,7 @@
 package pl.mchosting.server.hub;
 
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -23,7 +24,8 @@ import org.bukkit.inventory.InventoryHolder;
 
 /**
  * Nobody gets hurt, hungry or loses items in the hub, only staff can change the valley, and
- * falling into the void brings you back to spawn.
+ * falling into the void brings you back to spawn. Only in the hub world: minigame arenas in other
+ * worlds of the same server have their own rules.
  */
 final class HubProtectionListener implements Listener {
 
@@ -35,7 +37,7 @@ final class HubProtectionListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     void onDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player player) {
+        if (event.getEntity() instanceof Player player && inHub(player.getWorld())) {
             event.setCancelled(true);
             if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
                 player.teleport(settings.spawn());
@@ -45,26 +47,28 @@ final class HubProtectionListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     void onHunger(FoodLevelChangeEvent event) {
-        event.setCancelled(true);
+        if (inHub(event.getEntity().getWorld())) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler(ignoreCancelled = true)
     void onBreak(BlockBreakEvent event) {
-        if (!canBuild(event.getPlayer())) {
+        if (inHub(event.getBlock().getWorld()) && !canBuild(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     void onPlace(BlockPlaceEvent event) {
-        if (!canBuild(event.getPlayer())) {
+        if (inHub(event.getBlock().getWorld()) && !canBuild(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     void onDrop(PlayerDropItemEvent event) {
-        if (!canBuild(event.getPlayer())) {
+        if (inHub(event.getPlayer().getWorld()) && !canBuild(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
@@ -73,7 +77,7 @@ final class HubProtectionListener implements Listener {
     @EventHandler
     void onInteractBlock(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
-        if (block == null || canBuild(event.getPlayer())) {
+        if (block == null || !inHub(block.getWorld()) || canBuild(event.getPlayer())) {
             return;
         }
         boolean trample = event.getAction() == Action.PHYSICAL && block.getType() == Material.FARMLAND;
@@ -87,20 +91,25 @@ final class HubProtectionListener implements Listener {
     /** Item frames, armor stands and other decorations stay as they are. */
     @EventHandler(ignoreCancelled = true)
     void onInteractEntity(PlayerInteractEntityEvent event) {
-        if (!(event.getRightClicked() instanceof Player) && !canBuild(event.getPlayer())) {
+        if (!(event.getRightClicked() instanceof Player)
+                && inHub(event.getRightClicked().getWorld())
+                && !canBuild(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     void onArmorStand(PlayerArmorStandManipulateEvent event) {
-        if (!canBuild(event.getPlayer())) {
+        if (inHub(event.getRightClicked().getWorld()) && !canBuild(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     void onHangingBreak(HangingBreakByEntityEvent event) {
+        if (!inHub(event.getEntity().getWorld())) {
+            return;
+        }
         if (!(event.getRemover() instanceof Player player) || !canBuild(player)) {
             event.setCancelled(true);
         }
@@ -109,21 +118,22 @@ final class HubProtectionListener implements Listener {
     /** No wild mobs in the hub; NPCs and staff-spawned entities are fine. */
     @EventHandler(ignoreCancelled = true)
     void onCreatureSpawn(CreatureSpawnEvent event) {
-        if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.NATURAL) {
+        if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.NATURAL
+                && inHub(event.getLocation().getWorld())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     void onWeather(WeatherChangeEvent event) {
-        if (event.toWeatherState()) {
+        if (event.toWeatherState() && inHub(event.getWorld())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     void onMove(PlayerMoveEvent event) {
-        if (!event.hasChangedBlock()) {
+        if (!event.hasChangedBlock() || !inHub(event.getTo().getWorld())) {
             return;
         }
         boolean inVoid = event.getTo().getY() < settings.voidY();
@@ -132,6 +142,10 @@ final class HubProtectionListener implements Listener {
         if (inVoid || inWater) {
             event.getPlayer().teleport(settings.spawn());
         }
+    }
+
+    private boolean inHub(World world) {
+        return world != null && settings.isHubWorld(world);
     }
 
     private static boolean canBuild(Player player) {

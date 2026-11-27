@@ -2,9 +2,6 @@ package pl.mchosting.server.hub;
 
 import java.util.List;
 import net.kyori.adventure.title.Title;
-import org.bukkit.GameMode;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -24,20 +21,13 @@ final class HubJoinListener implements Listener {
             "<gray>Codziennie odbierz nagrodę: <yellow>/nagroda</yellow>. Miłej zabawy!");
 
     private final ProfileService profiles;
-    private final HubSettings settings;
-    private final HubItems items;
+    private final HubLobby lobby;
     private final HubSidebar sidebar;
     private final PlayerVisibility visibility;
 
-    HubJoinListener(
-            ProfileService profiles,
-            HubSettings settings,
-            HubItems items,
-            HubSidebar sidebar,
-            PlayerVisibility visibility) {
+    HubJoinListener(ProfileService profiles, HubLobby lobby, HubSidebar sidebar, PlayerVisibility visibility) {
         this.profiles = profiles;
-        this.settings = settings;
-        this.items = items;
+        this.lobby = lobby;
         this.sidebar = sidebar;
         this.visibility = visibility;
     }
@@ -47,19 +37,7 @@ final class HubJoinListener implements Listener {
         // With hundreds of players "X joined" lines would flood the chat.
         event.joinMessage(null);
         Player player = event.getPlayer();
-        player.teleport(settings.spawn());
-        if (!player.hasPermission(HubPermissions.BUILD)) {
-            player.setGameMode(GameMode.ADVENTURE);
-        }
-        AttributeInstance maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
-        if (maxHealth != null) {
-            player.setHealth(maxHealth.getValue());
-        }
-        player.setFoodLevel(20);
-        player.setSaturation(5f);
-        player.setFireTicks(0);
-        player.clearActivePotionEffects();
-        items.giveHotbar(player, false);
+        lobby.arrive(player);
         visibility.onJoin(player);
         sidebar.show(player);
         profiles.profile(player.getUniqueId())

@@ -31,6 +31,14 @@ public final class Stats {
         return StatKey.counter(mode, "deaths");
     }
 
+    /**
+     * Sum of match scores used for matchmaking: each match adds the share of opponents beaten, from
+     * 0 (last) to 1000 (winner). Divided by {@link #gamesPlayed} it says how good a player is.
+     */
+    public static StatKey skillPoints(String mode) {
+        return StatKey.counter(mode, "skill_points");
+    }
+
     /** Most wins in a row. */
     public static StatKey bestWinStreak(String mode) {
         return StatKey.highest(mode, "best_streak");

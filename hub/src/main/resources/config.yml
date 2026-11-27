@@ -18,3 +18,7 @@ link:
   # /wroc wysyła tylko na adresy w tych domenach.
   allowed-domains:
     - mchosting.pl
+
+# Bramy minigier w dzielnicy Minigry: wejście w bramę = dołączenie do kolejki.
+# Nie wpisuj ręcznie: /hubadmin brama <gra> rog1, potem w przeciwległym rogu /hubadmin brama <gra> rog2.
+gates: {}
