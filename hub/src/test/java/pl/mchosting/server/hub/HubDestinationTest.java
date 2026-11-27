@@ -57,4 +57,25 @@ class HubDestinationTest {
         assertEquals(Optional.empty(), HubPoint.byId("ALEJA"));
         assertEquals(Optional.empty(), HubPoint.byId("nieznany"));
     }
+
+    @Test
+    void minigamesAreFoundByTheirGameId() {
+        assertEquals(Optional.of(HubDestination.SPLEEF), HubDestination.byGameId("spleef"));
+        assertEquals(Optional.of(HubDestination.TNT_RUN), HubDestination.byGameId("tntrun"));
+        assertEquals(Optional.empty(), HubDestination.byGameId("boxpvp"));
+        assertEquals(Optional.empty(), HubDestination.byGameId("SPLEEF"));
+    }
+
+    @Test
+    void onlyMinigamesHaveUniqueGameIds() {
+        Set<String> ids = new HashSet<>();
+        for (HubDestination destination : HubDestination.values()) {
+            if (destination.point() == HubPoint.MINIGRY) {
+                assertTrue(destination.gameId().isPresent(), destination.name());
+                assertTrue(ids.add(destination.gameId().orElseThrow()), destination.name());
+            } else {
+                assertTrue(destination.gameId().isEmpty(), destination.name());
+            }
+        }
+    }
 }
