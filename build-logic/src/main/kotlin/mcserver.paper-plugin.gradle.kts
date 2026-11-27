@@ -8,6 +8,8 @@ val libs = the<VersionCatalogsExtension>().named("libs")
 
 dependencies {
     compileOnly(libs.findLibrary("paper-api").get())
+    // Tests of plain classes that use libraries Paper ships (Gson, Adventure) need them too.
+    testImplementation(libs.findLibrary("paper-api").get())
 }
 
 tasks.processResources {

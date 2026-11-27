@@ -8,6 +8,7 @@ val libs = the<VersionCatalogsExtension>().named("libs")
 
 dependencies {
     compileOnly(libs.findLibrary("paper-api-client").get())
+    testImplementation(libs.findLibrary("paper-api-client").get())
 }
 
 tasks.processResources {
