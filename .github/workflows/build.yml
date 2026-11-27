@@ -26,3 +26,4 @@ jobs:
           path: |
             core/build/libs/*.jar
             hub/build/libs/*.jar
+            link/build/libs/*.jar

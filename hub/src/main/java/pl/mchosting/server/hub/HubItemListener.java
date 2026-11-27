@@ -19,12 +19,19 @@ final class HubItemListener implements Listener {
     private final ModeMenu modeMenu;
     private final ProfileMenu profileMenu;
     private final PlayerVisibility visibility;
+    private final ReturnListener returns;
 
-    HubItemListener(HubItems items, ModeMenu modeMenu, ProfileMenu profileMenu, PlayerVisibility visibility) {
+    HubItemListener(
+            HubItems items,
+            ModeMenu modeMenu,
+            ProfileMenu profileMenu,
+            PlayerVisibility visibility,
+            ReturnListener returns) {
         this.items = items;
         this.modeMenu = modeMenu;
         this.profileMenu = profileMenu;
         this.visibility = visibility;
+        this.returns = returns;
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -43,6 +50,7 @@ final class HubItemListener implements Listener {
                     player.sendMessage(HubText.text(
                             "<aqua>Menu serwerów graczy będzie wkrótce. Na razie zajrzyj do Alei serwerów (kompas)."));
                 case HIDE_PLAYERS -> visibility.toggle(player);
+                case RETURN -> ReturnAction.send(player, returns);
             }
         });
     }

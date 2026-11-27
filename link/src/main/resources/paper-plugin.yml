@@ -1,0 +1,7 @@
+name: MchostingLink
+version: '${version}'
+main: pl.mchosting.server.link.LinkPlugin
+# The oldest Paper with transfer, cookies and Brigadier commands; newer servers load it too.
+api-version: '1.20'
+description: /hub przenosi do huba sieci mchosting.pl
+authors: [mchosting.pl]
