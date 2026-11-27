@@ -15,8 +15,10 @@ final class HubLobby implements LobbyService {
     private final HubSettings settings;
     private final HubItems items;
     private final PlayerVisibility visibility;
+    private final ReturnListener returns;
 
-    HubLobby(Server server, HubSettings settings, HubItems items, PlayerVisibility visibility) {
+    HubLobby(Server server, HubSettings settings, HubItems items, PlayerVisibility visibility, ReturnListener returns) {
+        this.returns = returns;
         this.server = server;
         this.settings = settings;
         this.items = items;
@@ -46,5 +48,7 @@ final class HubLobby implements LobbyService {
         player.setAllowFlight(false);
         player.clearActivePotionEffects();
         items.giveHotbar(player, visibility.isHiding(player));
+        // Back from a match: keep the door to the customer's server the player came from.
+        returns.target(player.getUniqueId()).ifPresent(server -> items.giveReturnItem(player, server));
     }
 }

@@ -6,6 +6,12 @@ plugins {
 dependencies {
     compileOnly(project(":core-api"))
     testImplementation(project(":core-api"))
+    // Return tickets from customers' servers (/wroc); shipped inside the hub jar.
+    implementation(project(":link-protocol"))
+}
+
+tasks.jar {
+    from(project(":link-protocol").sourceSets.main.map { it.output })
 }
 
 tasks.runServer {

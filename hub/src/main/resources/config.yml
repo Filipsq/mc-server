@@ -11,6 +11,14 @@ void-y: 60
 # Czy wejście do wody też wraca na spawn (w dolinie są jeziora, więc domyślnie nie).
 water-returns-to-spawn: false
 
+# Powrót na serwery klientów (plugin mchosting-link, /hub i /wroc).
+link:
+  # Panel, który wie, gdzie jest serwer gracza i jakim kluczem podpisuje bilet powrotu.
+  panel-url: https://mchosting.pl
+  # /wroc wysyła tylko na adresy w tych domenach.
+  allowed-domains:
+    - mchosting.pl
+
 # Bramy minigier w dzielnicy Minigry: wejście w bramę = dołączenie do kolejki.
 # Nie wpisuj ręcznie: /hubadmin brama <gra> rog1, potem w przeciwległym rogu /hubadmin brama <gra> rog2.
 gates: {}

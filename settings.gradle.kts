@@ -12,4 +12,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "mc-server"
 
-include("core-api", "core", "hub", "minigry")
+include("core-api", "core", "hub", "minigry", "link-protocol", "link")

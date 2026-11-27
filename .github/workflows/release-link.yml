@@ -1,0 +1,27 @@
+name: Release mchosting-link
+
+# Push a tag like link-v1 and the plugin goes out as a GitHub release. The panel's agent
+# downloads the newest one for customers' servers:
+# https://github.com/Filipsq/mc-server/releases/latest/download/mchosting-link.jar
+on:
+  push:
+    tags: ['link-v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v5
+      - run: ./gradlew :link:build --console=plain
+      - run: cp link/build/libs/mchosting-link-*.jar mchosting-link.jar
+      - run: gh release create "$GITHUB_REF_NAME" mchosting-link.jar --title "mchosting-link $GITHUB_REF_NAME" --notes "Plugin /hub dla serwerów klientów."
+        env:
+          GH_TOKEN: ${{ github.token }}

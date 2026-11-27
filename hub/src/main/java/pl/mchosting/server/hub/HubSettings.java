@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -98,6 +99,17 @@ final class HubSettings {
                 plugin.getLogger().log(Level.SEVERE, "Could not save config.yml", e);
             }
         });
+    }
+
+    /** The panel that knows linked customers' servers (mchosting-link). */
+    String panelUrl() {
+        return config().getString("link.panel-url", "https://mchosting.pl");
+    }
+
+    /** Domains /wroc may send players to. */
+    List<String> returnDomains() {
+        List<String> domains = config().getStringList("link.allowed-domains");
+        return domains.isEmpty() ? List.of("mchosting.pl") : domains;
     }
 
     private FileConfiguration config() {

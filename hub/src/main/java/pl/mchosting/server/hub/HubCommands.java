@@ -12,7 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import pl.mchosting.server.api.ProfileService;
 
-/** {@code /spawn}, {@code /nagroda} and {@code /hubadmin}. */
+/** {@code /spawn}, {@code /nagroda}, {@code /wroc} and {@code /hubadmin}. */
 final class HubCommands {
 
     private HubCommands() {}
@@ -32,6 +32,16 @@ final class HubCommands {
                 .requires(source -> source.getExecutor() instanceof Player)
                 .executes(context -> {
                     DailyRewardAction.claim((Player) context.getSource().getExecutor(), profiles);
+                    return Command.SINGLE_SUCCESS;
+                })
+                .build();
+    }
+
+    static LiteralCommandNode<CommandSourceStack> goBack(ReturnListener returns) {
+        return Commands.literal("wroc")
+                .requires(source -> source.getExecutor() instanceof Player)
+                .executes(context -> {
+                    ReturnAction.send((Player) context.getSource().getExecutor(), returns);
                     return Command.SINGLE_SUCCESS;
                 })
                 .build();
