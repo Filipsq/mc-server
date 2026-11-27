@@ -12,6 +12,7 @@ Plan i decyzje: [Plan serwera: hub, tryby i pluginy](https://claude.ai/artifact/
 | `core` | Plugin `MchostingCore`: konto gracza dla całej sieci. Wgrywany na każdy serwer sieci. |
 | `hub` | Plugin `MchostingHub`: wszystko, co dzieje się w hubie. Wymaga `MchostingCore`. |
 | `minigry` | Plugin `MchostingMinigry`: kolejki, dobieranie graczy i mecze (na razie Spleef i TNT Run). Wymaga `MchostingCore`, działa na serwerze huba. |
+| `maps/hub` | Mapa huba „Dolina”: dolina otoczona górami, generator i paczka danych ([opis](maps/hub/README.md)). |
 | `maps/boxpvp` | Mapa BoxPvP „Serwerownia”: generator, paczka danych i koordynaty stref dla przyszłego pluginu ([opis](maps/boxpvp/README.md)). |
 
 Więcej: [docs/architektura.md](docs/architektura.md).
