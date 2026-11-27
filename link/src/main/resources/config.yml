@@ -1,0 +1,16 @@
+# mchosting-link: /hub przenosi graczy do huba sieci mchosting.pl.
+# Ten plik ustawia panel mchosting.pl przy każdym starcie serwera. Zmiany wpisane ręcznie znikną:
+# włącz albo wyłącz połączenie z hubem w panelu (Ustawienia serwera).
+
+# Adres huba.
+hub:
+  host: hub.mchosting.pl
+  port: 25565
+
+# Kim jest ten serwer dla huba. Bez tych dwóch wartości /hub działa, ale w hubie
+# nie będzie przycisku powrotu na ten serwer.
+server-id: ''
+private-key: ''
+
+# Ile sekund gracz czeka między kolejnymi /hub.
+cooldown-seconds: 3

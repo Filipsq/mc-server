@@ -2,6 +2,7 @@ package pl.mchosting.server.hub;
 
 import java.util.List;
 import java.util.Optional;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -25,13 +26,27 @@ final class HubItems {
         PlayerInventory inventory = player.getInventory();
         inventory.clear();
         for (HubItem item : HubItem.values()) {
-            inventory.setItem(item.slot(), create(item, player, hidingPlayers));
+            if (item != HubItem.RETURN) {
+                inventory.setItem(item.slot(), create(item, player, hidingPlayers));
+            }
         }
         inventory.setHeldItemSlot(HubItem.MODE_SELECTOR.slot());
     }
 
     void refreshHideItem(Player player, boolean hidingPlayers) {
         player.getInventory().setItem(HubItem.HIDE_PLAYERS.slot(), create(HubItem.HIDE_PLAYERS, player, hidingPlayers));
+    }
+
+    /** The door that sends the player back to the linked server they came from. */
+    void giveReturnItem(Player player, ReturnServer server) {
+        ItemStack stack = ItemStack.of(Material.OAK_DOOR);
+        stack.editMeta(meta -> {
+            meta.customName(
+                    HubText.item("<gold>Wróć na <white><server>", Placeholder.unparsed("server", server.name())));
+            meta.lore(HubText.lore(List.of("Kliknij albo wpisz /wroc.")));
+            meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, HubItem.RETURN.name());
+        });
+        player.getInventory().setItem(HubItem.RETURN.slot(), stack);
     }
 
     Optional<HubItem> identify(ItemStack stack) {
@@ -57,6 +72,7 @@ final class HubItems {
             case PROFILE -> profileHead(player);
             case PLAYER_SERVERS ->
                 named(Material.ENDER_EYE, "<aqua>Serwery graczy", "Serwery z mchosting.pl. Wkrótce!");
+            case RETURN -> throw new IllegalArgumentException("use giveReturnItem");
             case HIDE_PLAYERS ->
                 hidingPlayers
                         ? named(Material.GRAY_DYE, "<gray>Gracze: ukryci", "Kliknij, aby pokazać graczy.")

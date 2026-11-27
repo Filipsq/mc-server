@@ -10,3 +10,11 @@ void-y: 60
 
 # Czy wejście do wody też wraca na spawn (w dolinie są jeziora, więc domyślnie nie).
 water-returns-to-spawn: false
+
+# Powrót na serwery klientów (plugin mchosting-link, /hub i /wroc).
+link:
+  # Panel, który wie, gdzie jest serwer gracza i jakim kluczem podpisuje bilet powrotu.
+  panel-url: https://mchosting.pl
+  # /wroc wysyła tylko na adresy w tych domenach.
+  allowed-domains:
+    - mchost.pl

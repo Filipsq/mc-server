@@ -1,5 +1,7 @@
 [versions]
 paper = "26.3.build.263-stable"
+# Oldest Paper customers' servers may run that mchosting-link supports (transfer, cookies, Brigadier).
+paper-client = "1.20.6-R0.1-SNAPSHOT"
 junit = "6.1.3"
 spotless = "8.12.0"
 palantir-java-format = "2.103.0"
@@ -7,6 +9,7 @@ run-paper = "3.1.0"
 
 [libraries]
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
+paper-api-client = { module = "io.papermc.paper:paper-api", version.ref = "paper-client" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-launcher = { module = "org.junit.platform:junit-platform-launcher" }
