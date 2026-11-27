@@ -61,6 +61,14 @@ final class ArenaListener implements Listener {
         }
         if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
             engine.eliminate(player);
+            event.setCancelled(true);
+            return;
+        }
+        // Duelists really fight; DuelListener decides about their damage.
+        if (engine.matchOf(player.getUniqueId())
+                .filter(active -> active.isFighting(player.getUniqueId()))
+                .isPresent()) {
+            return;
         }
         // Snowballs do no damage but push players; that push is the point of throwing them.
         if (event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
@@ -101,13 +109,24 @@ final class ArenaListener implements Listener {
             }
             return;
         }
-        if (mustNotChange(player, event.getBlock())) {
+        Optional<ActiveMatch> build = DuelListener.buildMatch(engine, player, event.getBlock());
+        BlockPos pos = BlockChanges.pos(event.getBlock());
+        if (build.isPresent() && build.get().placed.contains(pos)) {
+            // UHC: blocks placed in this duel may be broken again; the arena itself may not.
+            event.setDropItems(false);
+            build.get().placed.remove(pos);
+            return;
+        }
+        if (engine.matchOf(player.getUniqueId()).isPresent() || mustNotChange(player, event.getBlock())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     void onPlace(BlockPlaceEvent event) {
+        if (DuelListener.buildMatch(engine, event.getPlayer(), event.getBlock()).isPresent()) {
+            return;
+        }
         if (engine.matchOf(event.getPlayer().getUniqueId()).isPresent()
                 || mustNotChange(event.getPlayer(), event.getBlock())) {
             event.setCancelled(true);

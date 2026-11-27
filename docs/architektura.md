@@ -74,11 +74,27 @@ Plugin `MchostingMinigry` (moduł `minigry`). Na start działa na tym samym serw
 - Nagrody i statystyki przez `ProfileService` (`MatchRewards`, `Stats`), te same zasady w każdej minidze.
 - Areny w `plugins/MchostingMinigry/arenas.yml`, ustawiane komendą `/minigryadmin`. Po meczu zmienione bloki wracają na miejsce.
 
+### Duels
+
+- 1 na 1, pięć zestawów (`DuelKit`, przedmioty w `DuelKits`): miecz, łuk, mace, netheryt, UHC. Obaj gracze zawsze dostają ten sam zestaw, nic nie da się kupić.
+- Każdy zestaw ma dwie kolejki (`QueueId`): zwykłą i rankingową. `/graj duels` albo kompas otwiera menu zestawów.
+- Ranking (`EloRating`): start 1000 punktów, wygrana z mocniejszym daje więcej. Pierwsze 10 meczów rankingowych w zestawie liczy się podwójnie (K=40, potem 20). Na koncie są tylko rosnące liczniki, więc punkty to `elo_gain_<zestaw>` minus `elo_loss_<zestaw>` (`DuelStats`). Rangi od Brązu do Mistrza (`DuelRank`). Mecze rankingowe dobierają graczy po punktach.
+- Cios, który by zabił, kończy pojedynek (nikt naprawdę nie ginie i nic nie wypada). W UHC nie ma naturalnej regeneracji, a gracze mogą budować w obszarze areny; wszystko wraca po meczu, woda i lawa nie wylewają się poza arenę.
+- Arena Duels potrzebuje co najmniej 2 punktów startowych (naprzeciw siebie). Odliczanie 5 s, limit czasu 5 min (netheryt 6, UHC 10), potem remis.
+
+### Parkour
+
+- Bez kolejki: gracz wybiera trasę w menu (`/parkour`, kompas). Można biegać, czekając w kolejce do innej gry; gdy mecz jest gotowy, gracz trafia na arenę.
+- Trasa (`ParkourCourse`): start, punkty kontrolne po kolei, meta. Czas rusza po zejściu ze startu (`ParkourRun`). Spadnięcie poniżej wysokości punktu (każdy punkt ma swoją) albo w pustkę = powrót do ostatniego punktu. W pasku: przedmioty „wróć do punktu”, „od nowa”, „wyjdź”.
+- 10 gotowych tras od łatwych do bardzo trudnych buduje `/parkouradmin generuj` (`CourseGenerator`, `DefaultCourses`). Każdy skok jest z tabeli skoków możliwych w zwykłym Minecrafcie (najtrudniejsze: 4 bloki przerwy po płaskim, 3 w górę o blok, z rozbiegiem). Ta sama trudność i ziarno dają zawsze tę samą trasę, więc rekordy po przebudowie są dalej uczciwe. Własne trasy można też ustawić ręcznie komendami `/parkouradmin`.
+- Rekordy: najlepszy czas gracza na koncie (`Stats.bestTimeMillis`), a 10 najlepszych na trasie w `plugins/MchostingMinigry/parkour.yml` (`Leaderboard`), `/parkour top <trasa>`. Rekord trasy ogłaszany na całym serwerze.
+- Nagroda tylko za pierwsze ukończenie trasy, 30 XP i 15 monet za każdy poziom trudności. Powtórki są dla rekordów, więc nie da się farmić XP na najłatwiejszej trasie.
+- Później: duchy najlepszych przejść.
+
 ## Kolejne moduły (plan)
 
 | Moduł | Etap |
 |---|---|
 | `link` + `link-protocol` (mchosting-link na serwerach klientów, Paper 1.20.6+): gotowe | 1 |
-| `minigry`: Parkour i Duels | 1 |
 | `boxpvp`, `przedmioty`, `party` | 2 |
 | `lifesteal` | 3 |

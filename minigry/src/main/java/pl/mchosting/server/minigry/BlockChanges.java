@@ -16,6 +16,11 @@ final class BlockChanges {
         original.putIfAbsent(pos(block), block.getBlockData());
     }
 
+    /** Same as {@link #remember(Block)}, for events that already changed the block. */
+    void remember(BlockPos pos, BlockData before) {
+        original.putIfAbsent(pos, before);
+    }
+
     void restore(World world) {
         original.forEach(
                 (pos, data) -> world.getBlockAt(pos.x(), pos.y(), pos.z()).setBlockData(data, false));
