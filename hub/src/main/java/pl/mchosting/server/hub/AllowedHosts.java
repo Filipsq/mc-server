@@ -15,7 +15,7 @@ final class AllowedHosts {
 
     private final List<String> domains;
 
-    /** @param domains e.g. {@code mchost.pl}: it and every address under it are allowed */
+    /** @param domains e.g. {@code mchosting.pl}: it and every address under it are allowed */
     AllowedHosts(List<String> domains) {
         this.domains = domains.stream()
                 .map(d -> d.strip().toLowerCase(Locale.ROOT))
