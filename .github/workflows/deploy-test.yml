@@ -62,20 +62,30 @@ jobs:
           KEY: ${{ secrets.TEST_SERVER_DEPLOY_KEY }}
         run: |
           set -uo pipefail
-          # Wait until the server says it's done, up to 4 minutes.
+          # The panel gives the console's last 200 lines, which still hold the previous run at
+          # first. Only the part after the newest "[init]" line (the container starting again)
+          # counts. Wait for "Done (" there, up to 4 minutes.
+          started=no
+          # Give the container time to stop and print its first new [init] line.
+          sleep 30
           for i in $(seq 1 24); do
             sleep 10
             curl -fsS -H "Authorization: Bearer $KEY" "$PANEL/api/deploy/log" > log.txt || continue
-            grep -q 'Done (' log.txt && break
+            if grep -q '^\[init\]' log.txt; then started=yes; fi
+            [ "$started" = yes ] || continue
+            awk '/^\[init\]/{buf=""} {buf=buf $0 "\n"} END{printf "%s", buf}' log.txt > new.txt
+            # If the start is longer than 200 lines its [init] lines are gone: then it's all new.
+            grep -q '^\[init\]' log.txt || cp log.txt new.txt
+            grep -q 'Done (' new.txt && break
           done
           cat log.txt
-          if ! grep -q 'Done (' log.txt; then
-            echo "::error::Serwer nie wystartował w 4 minuty"; exit 1
+          if ! grep -q 'Done (' new.txt 2>/dev/null; then
+            echo "::error::Serwer nie wystartował ponownie w 4 minuty"; exit 1
           fi
-          for p in MchostingCore MchostingHub MchostingMinigry; do
-            grep -q "Enabling $p" log.txt || { echo "::error::$p się nie włączył"; exit 1; }
-          done
-          if grep -E 'Error occurred while enabling Mchosting|Could not load .*Mchosting|Exception' log.txt; then
+          if grep -E 'Error occurred while enabling Mchosting|Could not load .*Mchosting|Exception' new.txt; then
             echo "::error::W konsoli są błędy (wyżej)"; exit 1
           fi
-          echo "Pluginy działają na serwerze testowym."
+          for p in MchostingCore MchostingHub MchostingMinigry; do
+            grep -q "Enabling $p" new.txt || echo "::warning::Nie widzę w konsoli włączania $p (mogło się nie zmieścić w 200 liniach). Sprawdź /plugins w grze."
+          done
+          echo "Serwer wystartował z nowymi pluginami."
