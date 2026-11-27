@@ -19,9 +19,16 @@ final class HubItemListener implements Listener {
     private final ModeMenu modeMenu;
     private final ProfileMenu profileMenu;
     private final PlayerVisibility visibility;
+    private final HubSettings settings;
 
-    HubItemListener(HubItems items, ModeMenu modeMenu, ProfileMenu profileMenu, PlayerVisibility visibility) {
+    HubItemListener(
+            HubItems items,
+            ModeMenu modeMenu,
+            ProfileMenu profileMenu,
+            PlayerVisibility visibility,
+            HubSettings settings) {
         this.items = items;
+        this.settings = settings;
         this.modeMenu = modeMenu;
         this.profileMenu = profileMenu;
         this.visibility = visibility;
@@ -61,7 +68,10 @@ final class HubItemListener implements Listener {
         }
     }
 
-    private static boolean canEditInventory(Player player) {
+    private boolean canEditInventory(Player player) {
+        if (!settings.isHubWorld(player.getWorld())) {
+            return true;
+        }
         return player.hasPermission(HubPermissions.BUILD) && player.getGameMode() == GameMode.CREATIVE;
     }
 }

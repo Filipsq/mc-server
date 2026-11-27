@@ -10,3 +10,7 @@ void-y: 60
 
 # Czy wejście do wody też wraca na spawn (w dolinie są jeziora, więc domyślnie nie).
 water-returns-to-spawn: false
+
+# Bramy minigier w dzielnicy Minigry: wejście w bramę = dołączenie do kolejki.
+# Nie wpisuj ręcznie: /hubadmin brama <gra> rog1, potem w przeciwległym rogu /hubadmin brama <gra> rog2.
+gates: {}
