@@ -41,7 +41,7 @@ hub: gracz wchodzi
 ```
 
 Bezpieczeństwo:
-- Adres powrotu nigdy nie pochodzi z cookie, tylko z panelu, i musi być w domenie z `link.allowed-domains` w hubie (domyślnie `mchost.pl`). Podrobione cookie nie wyśle nikogo na obcy serwer.
+- Adres powrotu nigdy nie pochodzi z cookie, tylko z panelu, i musi być w domenie z `link.allowed-domains` w hubie (domyślnie `mchosting.pl`, tam są adresy serwerów klientów, np. `ekipa.mchosting.pl`). Podrobione cookie nie wyśle nikogo na obcy serwer.
 - Każdy serwer ma własny klucz. Klient widzi swój klucz prywatny w plikach serwera, ale może nim podpisać tylko powrót na swój własny serwer.
 - Bilet jest związany z nickiem, więc skopiowane cookie innego gracza nie działa. Hub zna tylko klucze publiczne.
 - Format biletu i sprawdzanie: moduł `link-protocol` (czysta Java 21, wbudowany w jary `link` i `hub`).

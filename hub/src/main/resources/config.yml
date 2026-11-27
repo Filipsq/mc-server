@@ -17,4 +17,4 @@ link:
   panel-url: https://mchosting.pl
   # /wroc wysyła tylko na adresy w tych domenach.
   allowed-domains:
-    - mchost.pl
+    - mchosting.pl

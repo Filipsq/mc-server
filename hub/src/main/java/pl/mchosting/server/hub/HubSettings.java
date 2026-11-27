@@ -69,7 +69,7 @@ final class HubSettings {
     /** Domains /wroc may send players to. */
     List<String> returnDomains() {
         List<String> domains = config().getStringList("link.allowed-domains");
-        return domains.isEmpty() ? List.of("mchost.pl") : domains;
+        return domains.isEmpty() ? List.of("mchosting.pl") : domains;
     }
 
     private FileConfiguration config() {
