@@ -54,7 +54,8 @@ jobs:
       - name: Restart serwera
         env:
           KEY: ${{ secrets.TEST_SERVER_DEPLOY_KEY }}
-        run: curl -fsS --retry 2 -X POST -H "Authorization: Bearer $KEY" "$PANEL/api/deploy/restart"
+        run: |
+          curl -fsS --retry 2 -X POST -H "Authorization: Bearer $KEY" "$PANEL/api/deploy/restart"
 
       - name: Sprawdź konsolę
         env:
