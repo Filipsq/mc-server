@@ -1,0 +1,80 @@
+name: Wgraj na serwer testowy
+
+# Builds the plugins from the chosen branch and puts them on the private test server
+# (ProjektMinecraft on mchosting.pl), then restarts it and checks the console.
+# Nothing is published: the jars only go to that one server.
+# Needs the secret TEST_SERVER_DEPLOY_KEY: a deploy key made in the panel's admin page of that
+# server (Filipsq/mc-host, src/lib/deployKey.ts). It can only touch the server's plugins/ folder.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-test
+  cancel-in-progress: false
+
+env:
+  PANEL: https://mchosting.pl
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v5
+      - run: ./gradlew :core:build :hub:build :minigry:build --console=plain
+
+      - name: Wgraj pluginy
+        env:
+          KEY: ${{ secrets.TEST_SERVER_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$KEY" || { echo "::error::Brak sekretu TEST_SERVER_DEPLOY_KEY"; exit 1; }
+          upload() {
+            local jar
+            jar=$(ls "$1"/build/libs/*.jar | grep -v -- '-sources\|-javadoc\|-plain' | head -n1)
+            echo "$jar -> plugins/$2.jar"
+            curl -fsS --retry 3 -X PUT -H "Authorization: Bearer $KEY" \
+              --data-binary "@$jar" -H "Content-Type: application/octet-stream" \
+              "$PANEL/api/deploy/files?path=plugins/$2.jar"
+            echo
+          }
+          # Fixed names, so each deploy replaces the jar instead of adding a second copy.
+          upload core MchostingCore
+          upload hub MchostingHub
+          upload minigry MchostingMinigry
+
+      - name: Restart serwera
+        env:
+          KEY: ${{ secrets.TEST_SERVER_DEPLOY_KEY }}
+        run: curl -fsS --retry 2 -X POST -H "Authorization: Bearer $KEY" "$PANEL/api/deploy/restart"
+
+      - name: Sprawdź konsolę
+        env:
+          KEY: ${{ secrets.TEST_SERVER_DEPLOY_KEY }}
+        run: |
+          set -uo pipefail
+          # Wait until the server says it's done, up to 4 minutes.
+          for i in $(seq 1 24); do
+            sleep 10
+            curl -fsS -H "Authorization: Bearer $KEY" "$PANEL/api/deploy/log" > log.txt || continue
+            grep -q 'Done (' log.txt && break
+          done
+          cat log.txt
+          if ! grep -q 'Done (' log.txt; then
+            echo "::error::Serwer nie wystartował w 4 minuty"; exit 1
+          fi
+          for p in MchostingCore MchostingHub MchostingMinigry; do
+            grep -q "Enabling $p" log.txt || { echo "::error::$p się nie włączył"; exit 1; }
+          done
+          if grep -E 'Error occurred while enabling Mchosting|Could not load .*Mchosting|Exception' log.txt; then
+            echo "::error::W konsoli są błędy (wyżej)"; exit 1
+          fi
+          echo "Pluginy działają na serwerze testowym."

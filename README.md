@@ -28,6 +28,12 @@ Gotowe pluginy są w `core/build/libs/`, `hub/build/libs/` i `minigry/build/libs
 
 Lokalny serwer testowy z hubem: `./gradlew :hub:runServer`, z hubem i minigrami: `./gradlew :minigry:runServer`.
 
+## Serwer testowy
+
+Prywatny serwer do naszych testów: ProjektMinecraft na mchosting.pl (`projektminecraft.mchosting.pl`). Niczego z niego nie publikujemy.
+
+Workflow „Wgraj na serwer testowy” (zakładka Actions → Run workflow, można wybrać gałąź) buduje `MchostingCore`, `MchostingHub` i `MchostingMinigry`, wgrywa je do `plugins/` serwera testowego, restartuje go i sprawdza w konsoli, czy pluginy się włączyły. Potrzebny sekret `TEST_SERVER_DEPLOY_KEY`: klucz do wgrywania z panelu admina (Admin → Serwery → ProjektMinecraft → „Klucz do wgrywania”). Klucz może tylko wgrywać pliki do `plugins/`, restartować ten jeden serwer i czytać jego konsolę.
+
 ## Jak ustawić minigry (dla obsługi)
 
 1. `/minigryadmin swiat minigry` tworzy pusty świat na areny i przenosi Cię tam.
