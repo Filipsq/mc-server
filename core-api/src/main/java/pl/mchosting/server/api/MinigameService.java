@@ -18,7 +18,11 @@ public interface MinigameService {
     /** Ids (like {@link Stats#SPLEEF}) of games with at least one ready arena. */
     Set<String> availableGames();
 
-    /** Puts an online player in the queue of {@code gameId}, leaving any other queue first. */
+    /**
+     * Puts an online player in the queue of {@code gameId}, leaving any other queue first. Games
+     * with choices (Parkour courses, Duels kits) open a menu instead and return {@link
+     * QueueJoin#MENU_OPENED}.
+     */
     QueueJoin join(UUID playerId, String gameId);
 
     /** Takes the player out of their queue. Returns false if they were not queued. */

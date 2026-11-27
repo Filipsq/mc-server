@@ -48,6 +48,8 @@ record ArenaConfig(
         List<String> problems = new ArrayList<>();
         if (spawns.isEmpty()) {
             problems.add("brak punktów startowych (/minigryadmin arena spawn " + id + ")");
+        } else if (spawns.size() < type.minSpawns()) {
+            problems.add("potrzeba co najmniej " + type.minSpawns() + " punktów startowych, naprzeciw siebie");
         }
         if (region == null) {
             problems.add("brak obszaru (/minigryadmin arena rog1 i rog2 " + id + ")");

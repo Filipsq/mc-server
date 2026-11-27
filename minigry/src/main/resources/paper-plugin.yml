@@ -2,7 +2,7 @@ name: MchostingMinigry
 version: '${version}'
 main: pl.mchosting.server.minigry.MinigryPlugin
 api-version: '26.3'
-description: Minigry sieci mchosting.pl (Spleef, TNT Run)
+description: Minigry sieci mchosting.pl (Spleef, TNT Run, Duels, Parkour)
 authors: [mchosting.pl]
 dependencies:
   server:
@@ -15,5 +15,5 @@ dependencies:
       required: false
 permissions:
   mchosting.minigry.admin:
-    description: Ustawianie aren (/minigryadmin) i budowanie w światach aren
+    description: Ustawianie aren (/minigryadmin), tras parkouru (/parkouradmin) i budowanie w światach aren
     default: op

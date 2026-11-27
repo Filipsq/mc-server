@@ -13,5 +13,7 @@ public enum QueueJoin {
     /** No game with this id exists. */
     UNKNOWN_GAME,
     /** The game exists but has no ready arena yet. */
-    NO_ARENA
+    NO_ARENA,
+    /** The game first asks the player to choose (a parkour course, a Duels kit) in a menu. */
+    MENU_OPENED
 }

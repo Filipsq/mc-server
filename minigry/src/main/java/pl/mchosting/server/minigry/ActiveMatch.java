@@ -14,12 +14,12 @@ import org.bukkit.World;
 /** A match being played in one arena: the rules from {@link Match} plus the world it changes. */
 final class ActiveMatch {
 
-    static final int COUNTDOWN_SECONDS = 10;
     /** Seconds between the end of the match and everyone going back to the hub. */
     static final int ENDING_SECONDS = 5;
 
     static final Duration KILL_MEMORY = Duration.ofSeconds(6);
 
+    final QueueId queue;
     final GameType type;
     final ArenaConfig arena;
     final World world;
@@ -28,23 +28,36 @@ final class ActiveMatch {
     final KillCredit credit = new KillCredit(KILL_MEMORY);
     /** TNT Run blocks already scheduled to disappear. */
     final Set<BlockPos> fading = new HashSet<>();
+    /** Blocks players placed during a duel (UHC); only these may be broken again. */
+    final Set<BlockPos> placed = new HashSet<>();
     /** Queue entries, so players go back to the front of the queue if the match is called off. */
     final Map<UUID, QueueEntry> entries = new HashMap<>();
 
     Instant startedAt;
     int endingLeft = -1;
 
-    ActiveMatch(GameType type, ArenaConfig arena, World world, List<QueueEntry> players) {
-        this.type = type;
+    ActiveMatch(QueueId queue, ArenaConfig arena, World world, List<QueueEntry> players) {
+        this.queue = queue;
+        this.type = queue.type();
         this.arena = arena;
         this.world = world;
-        this.match =
-                new Match(players.stream().map(QueueEntry::playerId).toList(), type.minPlayers(), COUNTDOWN_SECONDS);
+        this.match = new Match(
+                players.stream().map(QueueEntry::playerId).toList(), type.minPlayers(), type.countdownSeconds());
         players.forEach(entry -> entries.put(entry.playerId(), entry));
     }
 
     boolean isRunning() {
         return match.phase() == Match.Phase.RUNNING;
+    }
+
+    /** The Duels kit, or null in other games. */
+    DuelKit kit() {
+        return queue.kit();
+    }
+
+    /** Whether {@code playerId} is fighting in this duel right now (PvP is on). */
+    boolean isFighting(UUID playerId) {
+        return type == GameType.DUELS && isRunning() && match.isAlive(playerId);
     }
 
     boolean inRegion(BlockPos pos) {

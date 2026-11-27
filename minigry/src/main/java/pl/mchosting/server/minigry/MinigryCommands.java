@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +20,14 @@ import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import pl.mchosting.server.api.Stats;
 
 /** {@code /graj}, {@code /opusc} and {@code /minigryadmin}. */
 final class MinigryCommands {
 
     private static final String ARENA = "arena";
     private static final String GAME = "gra";
+    private static final String KIT = "zestaw";
 
     private final MinigameEngine engine;
     private final ArenaStore arenas;
@@ -44,14 +47,46 @@ final class MinigryCommands {
                             for (GameType type : GameType.values()) {
                                 builder.suggest(type.id());
                             }
+                            builder.suggest(Stats.PARKOUR);
                             return builder.buildFuture();
                         })
                         .executes(context -> {
                             Player player = (Player) context.getSource().getExecutor();
                             engine.join(player.getUniqueId(), StringArgumentType.getString(context, GAME));
                             return Command.SINGLE_SUCCESS;
-                        }))
+                        })
+                        // /graj duels <zestaw> [ranking]
+                        .then(Commands.argument(KIT, StringArgumentType.word())
+                                .suggests((context, builder) -> {
+                                    for (DuelKit kit : DuelKit.values()) {
+                                        builder.suggest(kit.id());
+                                    }
+                                    return builder.buildFuture();
+                                })
+                                .executes(context -> joinDuel(context, false))
+                                .then(Commands.literal("ranking").executes(context -> joinDuel(context, true)))))
                 .build();
+    }
+
+    private int joinDuel(CommandContext<CommandSourceStack> context, boolean ranked) {
+        Player player = (Player) context.getSource().getExecutor();
+        String game = StringArgumentType.getString(context, GAME);
+        String kitId = StringArgumentType.getString(context, KIT);
+        DuelKit kit = DuelKit.byId(kitId).orElse(null);
+        if (!game.equals(GameType.DUELS.id()) || kit == null) {
+            player.sendMessage(MiniText.text(
+                    "<red>Nie ma takiego zestawu. Zestawy: <white><kits>",
+                    Placeholder.unparsed(
+                            "kits",
+                            String.join(
+                                    ", ",
+                                    Arrays.stream(DuelKit.values())
+                                            .map(DuelKit::id)
+                                            .toList()))));
+            return 0;
+        }
+        engine.joinQueue(player, QueueId.duel(kit, ranked));
+        return Command.SINGLE_SUCCESS;
     }
 
     LiteralCommandNode<CommandSourceStack> leave() {
